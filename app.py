@@ -10,7 +10,7 @@ from sklearn.metrics import (
 
 st.set_page_config(page_title="Heart Disease Prediction", layout="centered")
 
-st.title("❤️ Heart Disease Prediction")
+st.title("Heart Disease Prediction")
 
 # =========================
 # Load Models & ScaIer
