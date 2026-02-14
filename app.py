@@ -12,7 +12,7 @@ from sklearn.metrics import (
 
 st.set_page_config(page_title="Heart Disease Prediction", layout="centered")
 
-st.title("❤️ Heart Disease Prediction Dashboard")
+st.title(" Heart Disease Prediction Dashboard")
 
 # =========================
 # Load Models & Scaler
@@ -99,7 +99,7 @@ if uploaded_file:
             probs = None
             auc = None
 
-        st.subheader("📊 Evaluation Metrics")
+        st.subheader("Evaluation Metrics")
 
         col1, col2, col3 = st.columns(3)
         col1.metric("Accuracy", f"{acc:.3f}")
@@ -207,6 +207,6 @@ if st.button("Predict"):
         prob = 0.0
 
     if pred == 1:
-        st.error(f"⚠ High Risk (Probability: {prob:.2f})")
+        st.error(f"High Risk (Probability: {prob:.2f})")
     else:
-        st.success(f"✅ Low Risk (Probability: {prob:.2f})")
+        st.success(f"Low Risk (Probability: {prob:.2f})")
