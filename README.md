@@ -28,7 +28,7 @@ The dataset used is a **Heart Disease dataset** containing 918 patient records a
 | ST_Slope | Slope of peak exercise ST segment (Up, Flat, Down) |
 | HeartDisease | Target variable: 1 = presence of heart disease, 0 = absence |
 
-**Source:** Public dataset (Kaggle / UCI)  
+**Source:** Public dataset (Kaggle:- https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction) 
 
 Number of instances: 918  
 Number of features: 12  
@@ -81,6 +81,10 @@ Each model was evaluated using the following metrics:
 | Random Forest        | Best performance among models; robust and handles feature interactions well. |
 | XGBoost              | Comparable to Random Forest; slightly better MCC; handles complex patterns efficiently. |
 
-**Conclusion:** Ensemble models (Random Forest and XGBoost) achieved the best overall performance on this dataset, showing higher accuracy, AUC, and MCC scores compared to individual classifiers.
+---
+
+## f. Conclusion
+
+Ensemble models (Random Forest and XGBoost) achieved the best overall performance on this dataset, showing higher accuracy, AUC, and MCC scores compared to individual classifiers.
 
 ---
