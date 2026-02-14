@@ -1,103 +1,19 @@
-"""
 import streamlit as st
 import pandas as pd
-import joblib
 import os
-
+import joblib
+import matplotlib.pyplot as plt
 from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-    matthews_corrcoef,
-    confusion_matrix,
-    classification_report
+    accuracy_score, precision_score, recall_score,
+    f1_score, matthews_corrcoef, roc_auc_score, confusion_matrix
 )
-
-st.title("Heart Disease Prediction App")
-
-st.write("Upload test dataset and evaluate ML models")
-
-# Load scaler
-#scaler = joblib.load("models/scaler.pkl")
-scaler = joblib.load(r"D:\BITS Mtech\ML\ML_Assignment_2\model\scaler.pkl")
-
-# Model paths
-models = {
-    "Logistic Regression": "models/logistic_regression.pkl",
-    "Decision Tree": "models/decision_tree.pkl",
-    "KNN": "models/knn.pkl",
-    "Naive Bayes": "models/naive_bayes.pkl",
-    "Random Forest": "models/random_forest.pkl",
-    "XGBoost": "models/xgboost.pkl"
-}
-
-# Upload dataset
-uploaded_file = st.file_uploader("Upload Test CSV", type=["csv"])
-
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-    st.write("Dataset Preview", df.head())
-
-    if "HeartDisease" not in df.columns:
-        st.error("Target column 'HeartDisease' not found!")
-    else:
-        X = df.drop("HeartDisease", axis=1)
-        y = df["HeartDisease"]
-
-        # Scale
-        X_scaled = scaler.transform(X)
-
-        # Model selection
-        model_name = st.selectbox("Select Model", list(models.keys()))
-
-        if st.button("Evaluate Model"):
-            model = joblib.load(models[model_name])
-
-            y_pred = model.predict(X_scaled)
-            y_prob = model.predict_proba(X_scaled)[:, 1]
-
-            # Metrics
-            accuracy = accuracy_score(y, y_pred)
-            precision = precision_score(y, y_pred)
-            recall = recall_score(y, y_pred)
-            f1 = f1_score(y, y_pred)
-            auc = roc_auc_score(y, y_prob)
-            mcc = matthews_corrcoef(y, y_pred)
-
-            st.subheader("Evaluation Metrics")
-
-            col1, col2, col3 = st.columns(3)
-
-            col1.metric("Accuracy", f"{accuracy:.2f}")
-            col2.metric("Precision", f"{precision:.2f}")
-            col3.metric("Recall", f"{recall:.2f}")
-
-            col1.metric("F1 Score", f"{f1:.2f}")
-            col2.metric("AUC", f"{auc:.2f}")
-            col3.metric("MCC", f"{mcc:.2f}")
-
-            st.subheader("Confusion Matrix")
-            cm = confusion_matrix(y, y_pred)
-            st.write(cm)
-
-            st.subheader("Classification Report")
-            st.text(classification_report(y, y_pred))
-            """
-
-import streamlit as st
-import pandas as pd
-import numpy as np
-import joblib
-import os
 
 st.set_page_config(page_title="Heart Disease Prediction", layout="centered")
 
-st.title(" Heart Disease Prediction App")
+st.title("❤️ Heart Disease Prediction")
 
 # =========================
-# Load Models & Scaler
+# Load Models & ScaIer
 # =========================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -114,121 +30,129 @@ models = {
     "XGBoost": joblib.load(os.path.join(MODEL_DIR, "xgboost.pkl")),
 }
 
-# =========================
-# Sidebar Model Selection
-# =========================
-
-model_name = st.sidebar.selectbox("Select Model", list(models.keys()))
+model_name = st.selectbox("Choose Model", list(models.keys()))
 model = models[model_name]
 
-st.sidebar.markdown("---")
-st.sidebar.write("Upload CSV (optional test data)")
-
-uploaded_file = st.sidebar.file_uploader("Upload CSV", type=["csv"])
-
 # =========================
-# User Inputs
+# Upload CSV
 # =========================
 
-st.subheader("Enter Patient Details")
-
-age = st.number_input("Age", 20, 100, 50)
-sex = st.selectbox("Sex", ["M", "F"])
-chest_pain = st.selectbox("Chest Pain Type", ["TA", "ATA", "NAP", "ASY"])
-resting_bp = st.number_input("Resting Blood Pressure", 80, 200, 120)
-cholesterol = st.number_input("Cholesterol", 100, 600, 200)
-fasting_bs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
-resting_ecg = st.selectbox("Resting ECG", ["Normal", "ST", "LVH"])
-max_hr = st.number_input("Max Heart Rate", 60, 220, 150)
-exercise_angina = st.selectbox("Exercise Angina", ["Y", "N"])
-oldpeak = st.number_input("Oldpeak", 0.0, 6.0, 1.0)
-st_slope = st.selectbox("ST Slope", ["Up", "Flat", "Down"])
+uploaded_file = st.file_uploader("Upload CSV Test Data", type=["csv"])
 
 # =========================
-# Create DataFrame
+# PREPROCESS FUNCTION
 # =========================
 
-input_data = {
-    "Age": age,
-    "Sex": sex,
-    "ChestPainType": chest_pain,
-    "RestingBP": resting_bp,
-    "Cholesterol": cholesterol,
-    "FastingBS": fasting_bs,
-    "RestingECG": resting_ecg,
-    "MaxHR": max_hr,
-    "ExerciseAngina": exercise_angina,
-    "Oldpeak": oldpeak,
-    "ST_Slope": st_slope,
-}
+def preprocess(df):
+    df = df.copy()
 
-X = pd.DataFrame([input_data])
-
-# =========================
-# Encode categorical values
-# (MUST match training)
-# =========================
-
-X["Sex"] = X["Sex"].map({"M": 1, "F": 0})
-
-X["ChestPainType"] = X["ChestPainType"].map({
-    "TA": 0, "ATA": 1, "NAP": 2, "ASY": 3
-})
-
-X["RestingECG"] = X["RestingECG"].map({
-    "Normal": 0, "ST": 1, "LVH": 2
-})
-
-X["ExerciseAngina"] = X["ExerciseAngina"].map({
-    "N": 0, "Y": 1
-})
-
-X["ST_Slope"] = X["ST_Slope"].map({
-    "Up": 0, "Flat": 1, "Down": 2
-})
-
-# =========================
-# Prediction
-# =========================
-
-if st.button("Predict"):
-
-    X_scaled = scaler.transform(X)
-
-    prediction = model.predict(X_scaled)[0]
-    probability = model.predict_proba(X_scaled)[0][1]
-
-    st.subheader("Prediction Result")
-
-    if prediction == 1:
-        st.error("⚠ High Risk of Heart Disease")
-    else:
-        st.success("Low Risk of Heart Disease")
-
-    st.write(f"**Probability:** {probability:.2f}")
-
-# =========================
-# CSV Upload Prediction
-# =========================
-
-if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
-
-    st.write("Uploaded Data")
-    st.dataframe(df.head())
-
-    # encode same way
+    # encode categorical columns (same as training)
     df["Sex"] = df["Sex"].map({"M": 1, "F": 0})
     df["ChestPainType"] = df["ChestPainType"].map({"TA":0,"ATA":1,"NAP":2,"ASY":3})
     df["RestingECG"] = df["RestingECG"].map({"Normal":0,"ST":1,"LVH":2})
     df["ExerciseAngina"] = df["ExerciseAngina"].map({"N":0,"Y":1})
     df["ST_Slope"] = df["ST_Slope"].map({"Up":0,"Flat":1,"Down":2})
 
-    df_scaled = scaler.transform(df)
+    df = df.fillna(0)
 
-    preds = model.predict(df_scaled)
+    return df
 
-    df["Prediction"] = preds
+# =========================
+# If CSV uploaded
+# =========================
+
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)
+    st.write("Preview", df.head())
+
+    if "HeartDisease" in df.columns:
+        X = df.drop("HeartDisease", axis=1)
+        y = df["HeartDisease"]
+    else:
+        X = df
+        y = None
+
+    X = preprocess(X)
+    X_scaled = scaler.transform(X)
+
+    predictions = model.predict(X_scaled)
 
     st.subheader("Predictions")
-    st.dataframe(df)
+    st.write(predictions[:10])
+
+    # ================= Metrics =================
+
+    if y is not None:
+        acc = accuracy_score(y, predictions)
+        prec = precision_score(y, predictions)
+        rec = recall_score(y, predictions)
+        f1 = f1_score(y, predictions)
+        mcc = matthews_corrcoef(y, predictions)
+
+        if hasattr(model, "predict_proba"):
+            probs = model.predict_proba(X_scaled)[:,1]
+            auc = roc_auc_score(y, probs)
+        else:
+            auc = None
+
+        st.subheader("Evaluation Metrics")
+        st.write(f"Accuracy: {acc:.3f}")
+        st.write(f"Precision: {prec:.3f}")
+        st.write(f"Recall: {rec:.3f}")
+        st.write(f"F1 Score: {f1:.3f}")
+        st.write(f"MCC: {mcc:.3f}")
+
+        if auc:
+            st.write(f"AUC: {auc:.3f}")
+
+        # Confusion matrix
+        cm = confusion_matrix(y, predictions)
+        fig, ax = plt.subplots()
+        ax.matshow(cm)
+        for i in range(len(cm)):
+            for j in range(len(cm)):
+                ax.text(j, i, cm[i, j], ha='center', va='center')
+
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        st.subheader("Confusion Matrix")
+        st.pyplot(fig)
+
+# =========================
+# Manual Prediction
+# =========================
+
+st.subheader("Manual Prediction")
+
+age = st.number_input("Age", 20, 100, 50)
+sex = st.selectbox("Sex", ["M","F"])
+chest = st.selectbox("Chest Pain Type", ["TA","ATA","NAP","ASY"])
+bp = st.number_input("Resting BP", 80, 200, 120)
+chol = st.number_input("Cholesterol", 100, 600, 200)
+fbs = st.selectbox("Fasting BS > 120", [0,1])
+ecg = st.selectbox("Resting ECG", ["Normal","ST","LVH"])
+hr = st.number_input("Max HR", 60, 220, 150)
+angina = st.selectbox("Exercise Angina", ["Y","N"])
+oldpeak = st.number_input("Oldpeak", 0.0, 6.0, 1.0)
+slope = st.selectbox("ST Slope", ["Up","Flat","Down"])
+
+if st.button("Predict"):
+
+    input_df = pd.DataFrame([{
+        "Age":age, "Sex":sex, "ChestPainType":chest,
+        "RestingBP":bp, "Cholesterol":chol,
+        "FastingBS":fbs, "RestingECG":ecg,
+        "MaxHR":hr, "ExerciseAngina":angina,
+        "Oldpeak":oldpeak, "ST_Slope":slope
+    }])
+
+    input_df = preprocess(input_df)
+    scaled = scaler.transform(input_df)
+
+    pred = model.predict(scaled)[0]
+    prob = model.predict_proba(scaled)[0][1]
+
+    if pred == 1:
+        st.error(f"High Risk (probability {prob:.2f})")
+    else:
+        st.success(f"Low Risk (probability {prob:.2f})")
