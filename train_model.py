@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-
 import joblib
 
 from sklearn.model_selection import train_test_split
@@ -38,7 +37,7 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-model_dir = r"D:\BITS Mtech\ML\ML_Assignment_2\models"
+model_dir = r"D:\BITS Mtech\ML\ML_Assignment_2\model"
 os.makedirs(model_dir, exist_ok=True)
 
 # Models dictionary
